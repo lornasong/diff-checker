@@ -1,2 +1,2 @@
 # diff-checker
-Simple diff check
+Basic diff check by line

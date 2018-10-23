@@ -29,6 +29,22 @@ func (p *LineMatch) B() string {
 	return p.b
 }
 
+// Same returns whether or not the contents of a and b are the same
+// for this line
+func (p *LineMatch) Same() bool {
+	return p.a == p.b
+}
+
+// OnlyInA returns whether or not this line only occurs in a
+func (p *LineMatch) OnlyInA() bool {
+	return len(p.a) > 0 && len(p.b) == 0
+}
+
+// OnlyInB returns whether or not this line only occurs in b
+func (p *LineMatch) OnlyInB() bool {
+	return len(p.b) > 0 && len(p.a) == 0
+}
+
 // Match returns a list of LineMatchs that represent the matches between string
 // a and string b if any.
 func Match(a, b string) []*LineMatch {
