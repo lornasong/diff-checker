@@ -8,15 +8,15 @@ import (
 	"github.com/lornasong/diff-checker/src/compare"
 )
 
-const pathToInputFiles = "cmd/diff-checker/input/"
+const pathToInputFiles = ""
 
 func main() {
-	a, err := ioutil.ReadFile(fmt.Sprintf("%s/a.txt", pathToInputFiles))
+	a, err := ioutil.ReadFile("a.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	b, err := ioutil.ReadFile(fmt.Sprintf("%s/b.txt", pathToInputFiles))
+	b, err := ioutil.ReadFile("b.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
