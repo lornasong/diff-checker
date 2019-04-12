@@ -45,12 +45,18 @@ func (p *LineMatch) OnlyInB() bool {
 	return len(p.b) > 0 && len(p.a) == 0
 }
 
+// MatchLine returns a list of LineMatchs that represent the matches between string
+// a and string b if any.
+func MatchLine(a, b string) []*LineMatch {
+	return Match(a, b, "\n")
+}
+
 // Match returns a list of LineMatchs that represent the matches between string
 // a and string b if any.
-func Match(a, b string) []*LineMatch {
+func Match(a, b, delim string) []*LineMatch {
 
-	aPieces := strings.Split(a, "\n")
-	bPieces := strings.Split(b, "\n")
+	aPieces := strings.Split(a, delim)
+	bPieces := strings.Split(b, delim)
 
 	matches := make([]*LineMatch, 0)
 	unmatchedB := make([]*LineMatch, 0)

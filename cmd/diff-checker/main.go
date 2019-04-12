@@ -25,7 +25,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	lines := compare.Match(string(a), string(b))
+	lines := compare.MatchLine(string(a), string(b))
 	if len(lines) == 0 {
 		fmt.Println("No differences between files")
 		return

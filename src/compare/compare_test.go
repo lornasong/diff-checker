@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMatch_Same(t *testing.T) {
+func TestMatchLine_Same(t *testing.T) {
 	cases := []struct {
 		scenario string
 		str      string
@@ -62,7 +62,7 @@ func TestMatch_Same(t *testing.T) {
 
 	for _, tc := range cases {
 		fmt.Println("Running test for scenario: ", tc.scenario)
-		actual := comp.Match(tc.str, tc.str)
+		actual := comp.MatchLine(tc.str, tc.str)
 		require.Equal(t, len(tc.expected), len(actual), "Failed: "+tc.scenario)
 
 		for ix, p := range tc.expected {
@@ -72,7 +72,7 @@ func TestMatch_Same(t *testing.T) {
 	}
 }
 
-func TestMatch_Diff(t *testing.T) {
+func TestMatchLine_Diff(t *testing.T) {
 	cases := []struct {
 		scenario string
 		a        string
@@ -152,7 +152,7 @@ func TestMatch_Diff(t *testing.T) {
 
 	for _, tc := range cases {
 		fmt.Println("Running test for scenario: ", tc.scenario)
-		actual := comp.Match(tc.a, tc.b)
+		actual := comp.MatchLine(tc.a, tc.b)
 		require.Equal(t, len(tc.expected), len(actual), "Failed: "+tc.scenario)
 
 		for ix, p := range tc.expected {
