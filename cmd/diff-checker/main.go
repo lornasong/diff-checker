@@ -4,13 +4,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	_ "net/http/pprof"
 
 	"github.com/lornasong/diff-checker/src/compare"
+	"github.com/pkg/profile"
 )
 
 const pathToInputFiles = ""
 
 func main() {
+	defer profile.Start(profile.MemProfile).Stop()
+
 	a, err := ioutil.ReadFile("a.txt")
 	if err != nil {
 		log.Fatal(err)
