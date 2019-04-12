@@ -2,20 +2,33 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 
 	"github.com/lornasong/diff-checker/src/compare"
 )
 
+const pathToInputFiles = "cmd/diff-checker/input/"
+
 func main() {
+	a, err := ioutil.ReadFile(fmt.Sprintf("%s/a.txt", pathToInputFiles))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	a := getA()
-	b := getB()
+	b, err := ioutil.ReadFile(fmt.Sprintf("%s/b.txt", pathToInputFiles))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	lines := compare.Match(a, b)
+	lines := compare.Match(string(a), string(b))
+	if len(lines) == 0 {
+		fmt.Println("No differences between files")
+		return
+	}
 
 	lineNumB := 0
 	lineNumA := 0
-
 	fmt.Println("Check Diff-----")
 	for _, line := range lines {
 		if line.Same() {
@@ -26,22 +39,12 @@ func main() {
 
 		if line.OnlyInA() {
 			lineNumA++
-			fmt.Printf("Line %d: +A %s\n", lineNumA, line.A())
+			fmt.Printf("  Line %d: +A %s\n", lineNumA, line.A())
 		}
 		if line.OnlyInB() {
 			lineNumB++
-			fmt.Printf("Line %d: +B %s\n", lineNumB, line.B())
+			fmt.Printf("  Line %d: +B %s\n", lineNumB, line.B())
 		}
 	}
 	fmt.Println("End Diff-------")
-}
-
-func getA() string {
-	return `
-	`
-}
-
-func getB() string {
-	return `
-	`
 }
