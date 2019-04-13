@@ -10,8 +10,6 @@ import (
 	"github.com/pkg/profile"
 )
 
-const pathToInputFiles = ""
-
 func main() {
 	defer profile.Start(profile.MemProfile).Stop()
 
