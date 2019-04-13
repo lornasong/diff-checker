@@ -1,5 +1,6 @@
 PROJECT = $(shell basename $(CURDIR))
-PATH_TO_PPROF ?= /var/folders/...mem.pprof
+PATH_TO_PPROF ?= /var/folders/2n/57yqflln2gq14fdwtxh3v2bm0000gv/T/profile321295611/mem.pprof
+
 default: test
 
 test:
@@ -14,7 +15,7 @@ build:
 local-build:
 	@go build -o build/$(PROJECT) ./cmd/$(PROJECT);
 
-run: local-build
+diff: local-build
 	./build/$(PROJECT)
 
 graphviz:

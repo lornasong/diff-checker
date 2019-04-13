@@ -1,18 +1,19 @@
 package compare
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 )
 
 const (
 	newLineDelimiter    = "\n"
-	spaceDelimiter      = " "
-	dashDelimiter       = "-"
-	underScoreDelimiter = "_"
-	commaDelimiter      = ","
-	colonDelimiter      = ":"
-	quotationDelimiter  = "\""
+	spaceDelimiter      = ' '
+	dashDelimiter       = '-'
+	underScoreDelimiter = '_'
+	commaDelimiter      = ','
+	colonDelimiter      = ':'
+	quotationDelimiter  = '"'
 )
 
 // LineMatch contains text from string a that has been matched to string
@@ -80,19 +81,6 @@ func (p *LineMatch) OnlyInB() bool {
 // MatchLine returns a list of LineMatchs that represent the matches between string
 // a and string b if any.
 func MatchLine(a, b string) []*LineMatch {
-	return MatchLine2(a, b)
-}
-
-// MatchWord returns a list of LineMatchs that represent the matches between string
-// a and string b if any. Ideally these would be a line
-// func MatchWord(a, b string) []*LineMatch {
-// 	return Match(a, b, " ")
-// }
-
-// Match returns a list of LineMatchs that represent the matches between string
-// a and string b if any.
-func MatchLine2(a, b string) []*LineMatch {
-
 	aPieces := strings.Split(a, "\n")
 	bPieces := strings.Split(b, "\n")
 
@@ -100,7 +88,6 @@ func MatchLine2(a, b string) []*LineMatch {
 	unmatchedB := make([]*LineMatch, 0)
 	matched := false
 
-	// TODO: refactor. think through any optimizations
 	for _, a := range aPieces {
 		matched = false
 		unmatchedB = nil
@@ -145,9 +132,7 @@ func sameSimilarLine(a, b string) []*LineMatch {
 	fmt.Println("a: ", a)
 	fmt.Println("b: ", b)
 
-	delim := bestDelim(a, b)
-	fmt.Println("delim: ", delim)
-	words := matchWords(a, b, delim)
+	words := matchWords(a, b)
 	if len(words) == 0 {
 		fmt.Println("not similar (1)")
 		return nil
@@ -157,31 +142,6 @@ func sameSimilarLine(a, b string) []*LineMatch {
 		return words
 	}
 	return nil
-}
-
-func bestDelim(a, b string) string {
-	delims := []string{spaceDelimiter, dashDelimiter, underScoreDelimiter, commaDelimiter, colonDelimiter, quotationDelimiter}
-
-	score := 0
-	highestScore := 0
-	highestDelim := spaceDelimiter // default
-	for _, delim := range delims {
-		as := strings.Split(a, delim)
-		bs := strings.Split(b, delim)
-
-		if len(as) < len(bs) {
-			score = len(as)
-		} else {
-			score = len(bs)
-		}
-
-		if score > highestScore {
-			highestScore = score
-			highestDelim = delim
-		}
-	}
-
-	return highestDelim
 }
 
 func similar(matches []*LineMatch, threshold float64) bool {
@@ -200,10 +160,39 @@ func similar(matches []*LineMatch, threshold float64) bool {
 	return false
 }
 
-func matchWords(a, b, delim string) []*LineMatch {
+func splitLine(s string) []string {
+	delims := make(map[rune]bool)
+	delims[spaceDelimiter] = true
+	delims[dashDelimiter] = true
+	delims[underScoreDelimiter] = true
+	delims[commaDelimiter] = true
+	delims[colonDelimiter] = true
+	delims[quotationDelimiter] = true
 
-	aPieces := strings.Split(a, delim)
-	bPieces := strings.Split(b, delim)
+	var buf bytes.Buffer
+	pieces := make([]string, 0)
+
+	for _, r := range s {
+		if _, ok := delims[r]; !ok {
+			buf.WriteRune(r)
+			continue
+		}
+
+		pieces = append(pieces, buf.String())
+		buf.Reset()
+		pieces = append(pieces, string(r))
+	}
+	if len(buf.String()) > 0 {
+		pieces = append(pieces, buf.String())
+	}
+
+	return pieces
+}
+
+func matchWords(a, b string) []*LineMatch {
+
+	aPieces := splitLine(a)
+	bPieces := splitLine(b)
 
 	matches := make([]*LineMatch, 0)
 	unmatchedB := make([]*LineMatch, 0)
@@ -217,7 +206,7 @@ func matchWords(a, b, delim string) []*LineMatch {
 		// look for matches to b
 		for ixb, b := range bPieces {
 
-			if sameWord(a, b) {
+			if a == b {
 				if len(unmatchedB) > 0 {
 					matches = append(matches, unmatchedB...)
 					unmatchedB = nil
@@ -232,8 +221,8 @@ func matchWords(a, b, delim string) []*LineMatch {
 			}
 
 			unmatchedB = append(unmatchedB, NewLineMatch("", b))
-
 		}
+
 		// there was no match to b
 		if !matched {
 			matches = append(matches, NewLineMatch(a, ""))
@@ -246,11 +235,4 @@ func matchWords(a, b, delim string) []*LineMatch {
 	}
 
 	return matches
-}
-
-func sameWord(a, b string) bool {
-	if a == b {
-		return true
-	}
-	return false
 }
