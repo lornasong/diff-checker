@@ -38,6 +38,8 @@ func NewLineMatch(a, b string, opts ...func(*LineMatch)) *LineMatch {
 	return m
 }
 
+// WithChildMatches sets the child matches. Without this option, the matcher
+// has no child matches
 func WithChildMatches(child []*LineMatch) func(*LineMatch) {
 	return func(m *LineMatch) { m.childMatches = child }
 }
@@ -52,7 +54,7 @@ func (p *LineMatch) B() string {
 	return p.b
 }
 
-// A returns the value of string a
+// Children returns the array of the children
 func (p *LineMatch) Children() []*LineMatch {
 	return p.childMatches
 }
@@ -63,7 +65,7 @@ func (p *LineMatch) Same() bool {
 	return p.a == p.b
 }
 
-// TODO:
+// Similar returns whether the line is considered similar between a and b
 func (p *LineMatch) Similar() bool {
 	return len(p.childMatches) > 0
 }
@@ -198,7 +200,6 @@ func matchWords(a, b string) []*LineMatch {
 	unmatchedB := make([]*LineMatch, 0)
 	matched := false
 
-	// TODO: refactor. think through any optimizations
 	for _, a := range aPieces {
 		matched = false
 		unmatchedB = nil
