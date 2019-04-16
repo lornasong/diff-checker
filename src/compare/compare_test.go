@@ -160,3 +160,146 @@ func TestMatchLine_Diff(t *testing.T) {
 		}
 	}
 }
+
+func TestSplitLine(t *testing.T) {
+	cases := []struct {
+		scenario string
+		s        string
+		expected []string
+	}{
+		{
+			scenario: "Empty String",
+			s:        "",
+			expected: []string{},
+		},
+		{
+			scenario: "No split",
+			s:        "config",
+			expected: []string{"config"},
+		},
+		{
+			scenario: "Split by all word delimiters",
+			s:        "space dash-underscore_comma,colon:quotation\"",
+			expected: []string{"space", " ", "dash", "-", "underscore", "_", "comma", ",", "colon", ":", "quotation", "\""},
+		},
+		{
+			scenario: "End with a delimiter",
+			s:        "key,value,",
+			expected: []string{"key", ",", "value", ","},
+		},
+	}
+
+	for _, tc := range cases {
+		actual := splitLine(tc.s)
+		require.Equal(t, len(tc.expected), len(actual), "Failed: "+tc.scenario)
+
+		for ix, e := range tc.expected {
+			assert.Equal(t, e, actual[ix], "Failed: "+tc.scenario)
+		}
+	}
+}
+
+func TestSimilar(t *testing.T) {
+	cases := []struct {
+		scenario  string
+		matches   []*LineMatch
+		threshold float64
+		expected  bool
+	}{
+		{
+			scenario: "Complete Same",
+			matches: []*LineMatch{
+				NewLineMatch("same", "same"),
+				NewLineMatch("same2", "same2"),
+			},
+			threshold: 0.5,
+			expected:  true,
+		},
+		{
+			scenario: "Complete Different",
+			matches: []*LineMatch{
+				NewLineMatch("diff1", ""),
+				NewLineMatch("", "diff2"),
+			},
+			threshold: 0.5,
+			expected:  false,
+		},
+		{
+			scenario: "Percent = Threshold",
+			matches: []*LineMatch{
+				NewLineMatch("same", "same"),
+				NewLineMatch("diff2", "diff1"),
+			},
+			threshold: 0.5,
+			expected:  false,
+		},
+		{
+			scenario: "Percent >= Threshold",
+			matches: []*LineMatch{
+				NewLineMatch("same", "same"),
+				NewLineMatch("diff2", "diff1"),
+			},
+			threshold: 0.49,
+			expected:  true,
+		},
+	}
+
+	for _, tc := range cases {
+		actual := similar(tc.matches, tc.threshold)
+		assert.Equal(t, tc.expected, actual, "Failed: "+tc.scenario)
+	}
+}
+
+func TestMatchWord(t *testing.T) {
+	cases := []struct {
+		scenario string
+		a        string
+		b        string
+		expected []*LineMatch
+	}{
+		{
+			scenario: "Same line",
+			a:        "environ:dev",
+			b:        "environ:dev",
+			expected: []*LineMatch{
+				NewLineMatch("environ", "environ"),
+				NewLineMatch(":", ":"),
+				NewLineMatch("dev", "dev"),
+			},
+		},
+		{
+			scenario: "a match",
+			a:        "environ:dev",
+			b:        "environ:staging",
+			expected: []*LineMatch{
+				NewLineMatch("environ", "environ"),
+				NewLineMatch(":", ":"),
+				NewLineMatch("dev", ""),
+				NewLineMatch("", "staging"),
+			},
+		},
+		{
+			scenario: "some matching",
+			a:        "environ-dev",
+			b:        "environ:staging",
+			expected: []*LineMatch{
+				NewLineMatch("environ", "environ"),
+				NewLineMatch("-", ""),
+				NewLineMatch("dev", ""),
+				NewLineMatch("", ":"),
+				NewLineMatch("", "staging"),
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		fmt.Println("Running test for scenario: ", tc.scenario)
+		actual := matchWords(tc.a, tc.b)
+		require.Equal(t, len(tc.expected), len(actual), "Failed: "+tc.scenario)
+
+		for ix, p := range tc.expected {
+			assert.Equal(t, p.A(), actual[ix].A(), "Failed: "+tc.scenario)
+			assert.Equal(t, p.B(), actual[ix].B(), "Failed: "+tc.scenario)
+		}
+	}
+}
