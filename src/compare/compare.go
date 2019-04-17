@@ -16,17 +16,17 @@ const (
 	quotationDelimiter  = '"'
 )
 
-// LineMatch contains text from string a that has been matched to string
+// Matcher contains text from string a that has been matched to string
 // b up until newline. No match is represented by an empty string
-type LineMatch struct {
+type Matcher struct {
 	a            string
 	b            string
-	childMatches []*LineMatch
+	childMatches []*Matcher
 }
 
-// NewLineMatch returns a new LineMatch
-func NewLineMatch(a, b string, opts ...func(*LineMatch)) *LineMatch {
-	m := &LineMatch{
+// NewMatcher returns a new Matcher
+func NewMatcher(a, b string, opts ...func(*Matcher)) *Matcher {
+	m := &Matcher{
 		a: a,
 		b: b,
 	}
@@ -40,54 +40,54 @@ func NewLineMatch(a, b string, opts ...func(*LineMatch)) *LineMatch {
 
 // WithChildMatches sets the child matches. Without this option, the matcher
 // has no child matches
-func WithChildMatches(child []*LineMatch) func(*LineMatch) {
-	return func(m *LineMatch) { m.childMatches = child }
+func WithChildMatches(child []*Matcher) func(*Matcher) {
+	return func(m *Matcher) { m.childMatches = child }
 }
 
 // A returns the value of string a
-func (p *LineMatch) A() string {
+func (p *Matcher) A() string {
 	return p.a
 }
 
 // B returns the value of string b
-func (p *LineMatch) B() string {
+func (p *Matcher) B() string {
 	return p.b
 }
 
 // Children returns the array of the children
-func (p *LineMatch) Children() []*LineMatch {
+func (p *Matcher) Children() []*Matcher {
 	return p.childMatches
 }
 
 // Same returns whether or not the contents of a and b are the same
 // for this line
-func (p *LineMatch) Same() bool {
+func (p *Matcher) Same() bool {
 	return p.a == p.b
 }
 
 // Similar returns whether the line is considered similar between a and b
-func (p *LineMatch) Similar() bool {
+func (p *Matcher) Similar() bool {
 	return len(p.childMatches) > 0
 }
 
 // OnlyInA returns whether or not this line only occurs in a
-func (p *LineMatch) OnlyInA() bool {
+func (p *Matcher) OnlyInA() bool {
 	return len(p.a) > 0 && len(p.b) == 0
 }
 
 // OnlyInB returns whether or not this line only occurs in b
-func (p *LineMatch) OnlyInB() bool {
+func (p *Matcher) OnlyInB() bool {
 	return len(p.b) > 0 && len(p.a) == 0
 }
 
-// MatchLine returns a list of LineMatchs that represent the matches between string
+// MatchLine returns a list of Matchers that represent the matches between string
 // a and string b if any.
-func MatchLine(a, b string) []*LineMatch {
+func MatchLine(a, b string) []*Matcher {
 	aPieces := strings.Split(a, "\n")
 	bPieces := strings.Split(b, "\n")
 
-	matches := make([]*LineMatch, 0)
-	unmatchedB := make([]*LineMatch, 0)
+	matches := make([]*Matcher, 0)
+	unmatchedB := make([]*Matcher, 0)
 	matched := false
 
 	for _, a := range aPieces {
@@ -105,31 +105,31 @@ func MatchLine(a, b string) []*LineMatch {
 				}
 
 				matched = true
-				matches = append(matches, NewLineMatch(a, b, WithChildMatches(children)))
+				matches = append(matches, NewMatcher(a, b, WithChildMatches(children)))
 
 				// trim off added stuff
 				bPieces = bPieces[ixb+1:]
 				break
 			}
 
-			unmatchedB = append(unmatchedB, NewLineMatch("", b))
+			unmatchedB = append(unmatchedB, NewMatcher("", b))
 
 		}
 		// there was no match to b
 		if !matched {
-			matches = append(matches, NewLineMatch(a, ""))
+			matches = append(matches, NewMatcher(a, ""))
 		}
 	}
 
 	// incomplete b
 	for _, b := range bPieces {
-		matches = append(matches, NewLineMatch("", b))
+		matches = append(matches, NewMatcher("", b))
 	}
 
 	return matches
 }
 
-func sameSimilarLine(a, b string) []*LineMatch {
+func sameSimilarLine(a, b string) []*Matcher {
 	fmt.Println("matching lines")
 	fmt.Println("a: ", a)
 	fmt.Println("b: ", b)
@@ -146,7 +146,7 @@ func sameSimilarLine(a, b string) []*LineMatch {
 	return nil
 }
 
-func similar(matches []*LineMatch, threshold float64) bool {
+func similar(matches []*Matcher, threshold float64) bool {
 	i := 0.0
 	for _, childMatch := range matches {
 		if childMatch.Same() {
@@ -191,13 +191,13 @@ func splitLine(s string) []string {
 	return pieces
 }
 
-func matchWords(a, b string) []*LineMatch {
+func matchWords(a, b string) []*Matcher {
 
 	aPieces := splitLine(a)
 	bPieces := splitLine(b)
 
-	matches := make([]*LineMatch, 0)
-	unmatchedB := make([]*LineMatch, 0)
+	matches := make([]*Matcher, 0)
+	unmatchedB := make([]*Matcher, 0)
 	matched := false
 
 	for _, a := range aPieces {
@@ -214,25 +214,25 @@ func matchWords(a, b string) []*LineMatch {
 				}
 
 				matched = true
-				matches = append(matches, NewLineMatch(a, b))
+				matches = append(matches, NewMatcher(a, b))
 
 				// trim off added stuff
 				bPieces = bPieces[ixb+1:]
 				break
 			}
 
-			unmatchedB = append(unmatchedB, NewLineMatch("", b))
+			unmatchedB = append(unmatchedB, NewMatcher("", b))
 		}
 
 		// there was no match to b
 		if !matched {
-			matches = append(matches, NewLineMatch(a, ""))
+			matches = append(matches, NewMatcher(a, ""))
 		}
 	}
 
 	// incomplete b
 	for _, b := range bPieces {
-		matches = append(matches, NewLineMatch("", b))
+		matches = append(matches, NewMatcher("", b))
 	}
 
 	return matches

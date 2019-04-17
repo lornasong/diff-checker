@@ -8,14 +8,14 @@ import (
 )
 
 type Printer struct {
-	data      []*compare.LineMatch
+	data      []*compare.Matcher
 	plusColor func(a ...interface{}) string
 	diffColor func(a ...interface{}) string
 	aColor    func(a ...interface{}) string
 	bColor    func(a ...interface{}) string
 }
 
-func NewPrinter(data []*compare.LineMatch, opts ...func(*Printer)) *Printer {
+func NewPrinter(data []*compare.Matcher, opts ...func(*Printer)) *Printer {
 	p := &Printer{
 		data:      data,
 		plusColor: color.New(color.FgGreen).SprintFunc(),
@@ -65,11 +65,11 @@ func (p *Printer) Diff() {
 	}
 }
 
-func (p *Printer) printSameLine(line *compare.LineMatch, lineNumA, lineNumB int) {
+func (p *Printer) printSameLine(line *compare.Matcher, lineNumA, lineNumB int) {
 	fmt.Printf("L%d/%d A/B\t:%s\n", lineNumA, lineNumB, line.A())
 }
 
-func (p *Printer) printSimilarLine(line *compare.LineMatch, lineNumA, lineNumB int) {
+func (p *Printer) printSimilarLine(line *compare.Matcher, lineNumA, lineNumB int) {
 	fmt.Printf("L%d/%d %sA/B\t:", lineNumA, lineNumB, p.diffColor("~"))
 
 	for _, w := range line.Children() {
@@ -86,11 +86,11 @@ func (p *Printer) printSimilarLine(line *compare.LineMatch, lineNumA, lineNumB i
 	fmt.Println()
 }
 
-func (p *Printer) printOnlyALine(line *compare.LineMatch, lineNumA int) {
+func (p *Printer) printOnlyALine(line *compare.Matcher, lineNumA int) {
 	fmt.Printf("L%d %sA\t\t:%s\n", lineNumA, p.plusColor("+"), p.aColor(line.A()))
 }
 
-func (p *Printer) printOnlyBLine(line *compare.LineMatch, lineNumB int) {
+func (p *Printer) printOnlyBLine(line *compare.Matcher, lineNumB int) {
 	fmt.Printf("L%d %sB\t\t:%s\n", lineNumB, p.plusColor("+"), p.bColor(line.B()))
 }
 

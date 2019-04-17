@@ -12,49 +12,49 @@ func TestMatchLine_Same(t *testing.T) {
 	cases := []struct {
 		scenario string
 		str      string
-		expected []*LineMatch
+		expected []*Matcher
 	}{
 		{
 			scenario: "Same, No Newline",
 			str:      "abcd",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", "abcd"),
+			expected: []*Matcher{
+				NewMatcher("abcd", "abcd"),
 			},
 		},
 		{
 			scenario: "Same, With Single Newline, Basic",
 			str:      "abcd\n1234",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", "abcd"),
-				NewLineMatch("1234", "1234"),
+			expected: []*Matcher{
+				NewMatcher("abcd", "abcd"),
+				NewMatcher("1234", "1234"),
 			},
 		},
 		{
 			scenario: "Same, With Multi Newline",
 			str:      "abcd\n1234\nqwerty",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", "abcd"),
-				NewLineMatch("1234", "1234"),
-				NewLineMatch("qwerty", "qwerty"),
+			expected: []*Matcher{
+				NewMatcher("abcd", "abcd"),
+				NewMatcher("1234", "1234"),
+				NewMatcher("qwerty", "qwerty"),
 			},
 		},
 		{
 			scenario: "Same, With Single Newline, Consecutive Newlines",
 			str:      "abcd\n\n1234",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", "abcd"),
-				NewLineMatch("", ""),
-				NewLineMatch("1234", "1234"),
+			expected: []*Matcher{
+				NewMatcher("abcd", "abcd"),
+				NewMatcher("", ""),
+				NewMatcher("1234", "1234"),
 			},
 		},
 		{
 			scenario: "Same, With Multi Newline, Complex",
 			str:      "{\n\"key\": \"value\",\n\"stuff\": \"more stuff\"\n}",
-			expected: []*LineMatch{
-				NewLineMatch("{", "{"),
-				NewLineMatch(`"key": "value",`, `"key": "value",`),
-				NewLineMatch(`"stuff": "more stuff"`, `"stuff": "more stuff"`),
-				NewLineMatch("}", "}"),
+			expected: []*Matcher{
+				NewMatcher("{", "{"),
+				NewMatcher(`"key": "value",`, `"key": "value",`),
+				NewMatcher(`"stuff": "more stuff"`, `"stuff": "more stuff"`),
+				NewMatcher("}", "}"),
 			},
 		},
 	}
@@ -76,75 +76,75 @@ func TestMatchLine_Diff(t *testing.T) {
 		scenario string
 		a        string
 		b        string
-		expected []*LineMatch
+		expected []*Matcher
 	}{
 		{
 			scenario: "Different, No Newline, Completely",
 			a:        "abcd",
 			b:        "1234",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", ""),
-				NewLineMatch("", "1234"),
+			expected: []*Matcher{
+				NewMatcher("abcd", ""),
+				NewMatcher("", "1234"),
 			},
 		},
 		{
 			scenario: "Different, No Newline, Partially",
 			a:        "abcd",
 			b:        "abc4",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", ""),
-				NewLineMatch("", "abc4"),
+			expected: []*Matcher{
+				NewMatcher("abcd", ""),
+				NewMatcher("", "abc4"),
 			},
 		},
 		{
 			scenario: "Different, With Newline, First Line",
 			a:        "1234\nxyz",
 			b:        "abcd\nxyz",
-			expected: []*LineMatch{
-				NewLineMatch("1234", ""),
-				NewLineMatch("", "abcd"),
-				NewLineMatch("xyz", "xyz"),
+			expected: []*Matcher{
+				NewMatcher("1234", ""),
+				NewMatcher("", "abcd"),
+				NewMatcher("xyz", "xyz"),
 			},
 		},
 		{
 			scenario: "Different, With Newline, Mid Line",
 			a:        "abcd\n1234\nxyz",
 			b:        "abcd\n5678\nxyz",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", "abcd"),
-				NewLineMatch("1234", ""),
-				NewLineMatch("", "5678"),
-				NewLineMatch("xyz", "xyz"),
+			expected: []*Matcher{
+				NewMatcher("abcd", "abcd"),
+				NewMatcher("1234", ""),
+				NewMatcher("", "5678"),
+				NewMatcher("xyz", "xyz"),
 			},
 		},
 		{
 			scenario: "Different, With Newline, Last Line",
 			a:        "abcd\n1234",
 			b:        "abcd\nxyz",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", "abcd"),
-				NewLineMatch("1234", ""),
-				NewLineMatch("", "xyz"),
+			expected: []*Matcher{
+				NewMatcher("abcd", "abcd"),
+				NewMatcher("1234", ""),
+				NewMatcher("", "xyz"),
 			},
 		},
 		{
 			scenario: "Different, With Newline, Partial Criss-Cross Match",
 			a:        "abcd\n1234",
 			b:        "1234\nxyz",
-			expected: []*LineMatch{
-				NewLineMatch("abcd", ""),
-				NewLineMatch("1234", "1234"),
-				NewLineMatch("", "xyz"),
+			expected: []*Matcher{
+				NewMatcher("abcd", ""),
+				NewMatcher("1234", "1234"),
+				NewMatcher("", "xyz"),
 			},
 		},
 		{
 			scenario: "Different, With Newline, Complete Criss-Cross Match",
 			a:        "abcd\n1234",
 			b:        "1234\nabcd",
-			expected: []*LineMatch{
-				NewLineMatch("", "1234"),
-				NewLineMatch("abcd", "abcd"),
-				NewLineMatch("1234", ""),
+			expected: []*Matcher{
+				NewMatcher("", "1234"),
+				NewMatcher("abcd", "abcd"),
+				NewMatcher("1234", ""),
 			},
 		},
 	}
@@ -202,42 +202,42 @@ func TestSplitLine(t *testing.T) {
 func TestSimilar(t *testing.T) {
 	cases := []struct {
 		scenario  string
-		matches   []*LineMatch
+		matches   []*Matcher
 		threshold float64
 		expected  bool
 	}{
 		{
 			scenario: "Complete Same",
-			matches: []*LineMatch{
-				NewLineMatch("same", "same"),
-				NewLineMatch("same2", "same2"),
+			matches: []*Matcher{
+				NewMatcher("same", "same"),
+				NewMatcher("same2", "same2"),
 			},
 			threshold: 0.5,
 			expected:  true,
 		},
 		{
 			scenario: "Complete Different",
-			matches: []*LineMatch{
-				NewLineMatch("diff1", ""),
-				NewLineMatch("", "diff2"),
+			matches: []*Matcher{
+				NewMatcher("diff1", ""),
+				NewMatcher("", "diff2"),
 			},
 			threshold: 0.5,
 			expected:  false,
 		},
 		{
 			scenario: "Percent = Threshold",
-			matches: []*LineMatch{
-				NewLineMatch("same", "same"),
-				NewLineMatch("diff2", "diff1"),
+			matches: []*Matcher{
+				NewMatcher("same", "same"),
+				NewMatcher("diff2", "diff1"),
 			},
 			threshold: 0.5,
 			expected:  false,
 		},
 		{
 			scenario: "Percent >= Threshold",
-			matches: []*LineMatch{
-				NewLineMatch("same", "same"),
-				NewLineMatch("diff2", "diff1"),
+			matches: []*Matcher{
+				NewMatcher("same", "same"),
+				NewMatcher("diff2", "diff1"),
 			},
 			threshold: 0.49,
 			expected:  true,
@@ -255,39 +255,39 @@ func TestMatchWord(t *testing.T) {
 		scenario string
 		a        string
 		b        string
-		expected []*LineMatch
+		expected []*Matcher
 	}{
 		{
 			scenario: "Same line",
 			a:        "environ:dev",
 			b:        "environ:dev",
-			expected: []*LineMatch{
-				NewLineMatch("environ", "environ"),
-				NewLineMatch(":", ":"),
-				NewLineMatch("dev", "dev"),
+			expected: []*Matcher{
+				NewMatcher("environ", "environ"),
+				NewMatcher(":", ":"),
+				NewMatcher("dev", "dev"),
 			},
 		},
 		{
 			scenario: "a match",
 			a:        "environ:dev",
 			b:        "environ:staging",
-			expected: []*LineMatch{
-				NewLineMatch("environ", "environ"),
-				NewLineMatch(":", ":"),
-				NewLineMatch("dev", ""),
-				NewLineMatch("", "staging"),
+			expected: []*Matcher{
+				NewMatcher("environ", "environ"),
+				NewMatcher(":", ":"),
+				NewMatcher("dev", ""),
+				NewMatcher("", "staging"),
 			},
 		},
 		{
 			scenario: "some matching",
 			a:        "environ-dev",
 			b:        "environ:staging",
-			expected: []*LineMatch{
-				NewLineMatch("environ", "environ"),
-				NewLineMatch("-", ""),
-				NewLineMatch("dev", ""),
-				NewLineMatch("", ":"),
-				NewLineMatch("", "staging"),
+			expected: []*Matcher{
+				NewMatcher("environ", "environ"),
+				NewMatcher("-", ""),
+				NewMatcher("dev", ""),
+				NewMatcher("", ":"),
+				NewMatcher("", "staging"),
 			},
 		},
 	}
