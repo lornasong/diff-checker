@@ -7,6 +7,7 @@ import (
 	"github.com/lornasong/diff-checker/src/compare"
 )
 
+// Printer TODO:
 type Printer struct {
 	data      []*compare.Matcher
 	plusColor func(a ...interface{}) string
@@ -15,18 +16,34 @@ type Printer struct {
 	bColor    func(a ...interface{}) string
 }
 
+// NewPrinter TODO:
 func NewPrinter(data []*compare.Matcher, opts ...func(*Printer)) *Printer {
 	p := &Printer{
 		data:      data,
-		plusColor: color.New(color.FgGreen).SprintFunc(),
+		plusColor: color.New(color.FgHiGreen).SprintFunc(),
 		diffColor: color.New(color.FgHiYellow).SprintFunc(),
-		aColor:    color.New(color.FgCyan).SprintFunc(),
+		aColor:    color.New(color.FgHiCyan).SprintFunc(),
 		bColor:    color.New(color.FgHiMagenta).SprintFunc(),
+	}
+
+	for _, opt := range opts {
+		opt(p)
 	}
 
 	return p
 }
 
+// WithAColorAttribute sets the text color for string A
+func WithAColorAttribute(attr color.Attribute) func(*Printer) {
+	return func(p *Printer) { p.aColor = color.New(attr).SprintFunc() }
+}
+
+// WithBColorAttribute sets the text color for string A
+func WithBColorAttribute(attr color.Attribute) func(*Printer) {
+	return func(p *Printer) { p.bColor = color.New(attr).SprintFunc() }
+}
+
+// Diff TODO:
 func (p *Printer) Diff() {
 	p.printHeader()
 	defer p.printFooter()

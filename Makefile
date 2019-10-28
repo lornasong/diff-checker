@@ -1,6 +1,8 @@
 PROJECT = $(shell basename $(CURDIR))
 PATH_TO_PPROF ?= /var/folders/2n/57yqflln2gq14fdwtxh3v2bm0000gv/T/profile321295611/mem.pprof
 
+before-color ?= unset
+
 default: test
 
 test:
