@@ -2,7 +2,6 @@ package compare
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 )
 
@@ -130,13 +129,8 @@ func MatchLine(a, b string) []*Matcher {
 }
 
 func sameSimilarLine(a, b string) []*Matcher {
-	fmt.Println("matching lines")
-	fmt.Println("a: ", a)
-	fmt.Println("b: ", b)
-
 	words := matchWords(a, b)
 	if len(words) == 0 {
-		fmt.Println("not similar (1)")
 		return nil
 	}
 
@@ -155,10 +149,8 @@ func similar(matches []*Matcher, threshold float64) bool {
 	}
 	percent := i / float64(len(matches))
 	if percent > threshold {
-		fmt.Println("similar", i, len(matches), percent)
 		return true
 	}
-	fmt.Println("not similar (2)", i, len(matches), percent)
 	return false
 }
 
