@@ -9,7 +9,7 @@ test:
 	go test -v -race ./src/...
 
 dep:
-	go get -u github.com/golang/dep/cmd/dep
+	go mod download
 
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/$(PROJECT) ./cmd/$(PROJECT);
