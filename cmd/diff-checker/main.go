@@ -15,7 +15,6 @@ import (
 
 func main() {
 	fmt.Println("change one")
-	fmt.Println("change two")
 	defer profile.Start(profile.MemProfile).Stop()
 
 	// have to do some research here. this doesn't seem to be the right way in combination with make
